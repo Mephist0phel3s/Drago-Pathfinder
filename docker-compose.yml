@@ -12,7 +12,7 @@ services:
           - "${CONTAINER_NAME}db"
     volumes:
      - db_data:/var/lib/mysql
-     - ${path}/pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
+     - $path/pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
     restart: always
   pf-redis:
     image: redis:latest

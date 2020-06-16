@@ -18,7 +18,7 @@
 
 2. **Clone the repo**
 ```shell
-git clone https://gitlab.com/techfreak/pathfinder-container
+git clone --recurse-submodules  https://gitlab.com/techfreak/pathfinder-container
 ```
 
 ## Setup Script
