@@ -5,7 +5,7 @@ services:
     image: bianjp/mariadb-alpine:latest
     environment:
       MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
-    container_name: "${CONTAINER_NAME}-db"
+    container_name: "$CONTAINER_NAME-db"
     networks:
       pf:
         aliases:
@@ -16,7 +16,7 @@ services:
     restart: always
   pf-redis:
     image: redis:latest
-    container_name: "${CONTAINER_NAME}-redis"
+    container_name: "$CONTAINER_NAME-redis"
     command: ["redis-server", "--appendonly", "yes"]
     hostname: redis
     volumes:
@@ -24,13 +24,13 @@ services:
     networks:
       pf:
         aliases:
-          - "${CONTAINER_NAME}-redis"
+          - "$CONTAINER_NAME-redis"
     logging:
       driver: none
     restart: always
   pf-socket:
     image: composer:latest
-    container_name: "${CONTAINER_NAME}-socket"
+    container_name: "$CONTAINER_NAME-socket"
     command: ["sh","-c","composer install && php cmd.php --tcpHost 0.0.0.0"]
     hostname: socket
     volumes:
@@ -38,7 +38,7 @@ services:
     networks:
       pf:
          aliases:
-           - "${CONTAINER_NAME}-socket"
+           - "$CONTAINER_NAME-socket"
     restart: always
   pf:
     container_name: ${CONTAINER_NAME}
