@@ -1,0 +1,81 @@
+version: "3.8"
+
+services:
+  pfdb:
+    image: bianjp/mariadb-alpine:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
+    container_name: "${CONTAINER_NAME}-db"
+    networks:
+      pf:
+        aliases:
+          - "${CONTAINER_NAME}db"
+    volumes:
+     - db_data:/var/lib/mysql
+     - ${path}/pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
+    restart: always
+  pf-redis:
+    image: redis:latest
+    container_name: "${CONTAINER_NAME}-redis"
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    volumes:
+      - redis_data:/data
+    networks:
+      pf:
+        aliases:
+          - "${CONTAINER_NAME}-redis"
+    logging:
+      driver: none
+    restart: always
+  pf-socket:
+    image: composer:latest
+    container_name: "${CONTAINER_NAME}-socket"
+    command: ["sh","-c","composer install && php cmd.php --tcpHost 0.0.0.0"]
+    hostname: socket
+    volumes:
+      - ${path}/websocket:/app
+    networks:
+      pf:
+         aliases:
+           - "${CONTAINER_NAME}-socket"
+    restart: always
+  pf:
+    container_name: ${CONTAINER_NAME}
+    hostname: "pathfinder"
+    build: '.'
+    env_file:
+    - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.pf.loadbalancer.server.port=80"
+      - "traefik.http.routers.pf.tls=true"
+      - "traefik.http.routers.pf.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.pf.entrypoints=websecure"
+    networks:
+      - pf
+      - web
+        #ports:
+        #- 5000:80
+        #- 8030:8030
+    healthcheck:
+      disable: true
+    volumes:
+      - ${path}/config/pathfinder/config.ini:/var/www/html/pathfinder/app/templateConfig.ini
+      - ${path}/config/pathfinder/pathfinder.ini:/var/www/html/pathfinder/app/pathfinder.ini
+      - ${path}/config/pathfinder/plugins.ini:/var/www/html/pathfinder/app/plugins.ini
+    depends_on:
+      - pfdb   
+      - pf-redis
+      - pf-socket
+    restart: always
+
+volumes:
+     data:
+     db_data:
+     redis_data:
+networks:
+    pf:
+    web:
+       external: true
+
