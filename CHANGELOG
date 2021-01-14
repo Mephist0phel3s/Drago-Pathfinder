@@ -1,0 +1,6 @@
+2021-01-03
+- changed plugin(s) typo in docker-compose
+- added plugin.ini to static files so docker-composer reference works
+- changed path for plugin.ini and pathfinder.ini from /app to /conf
+- added another traefik label, so traefik always forwards to correct network
+- added version string to composer install, otherwise build fails with newest composer version

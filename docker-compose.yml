@@ -17,10 +17,11 @@ services:
   pf-redis:
     image: redis:latest
     container_name: "$CONTAINER_NAME-redis"
-    command: ["redis-server", "--appendonly", "yes"]
+    command: redis-server /usr/local/etc/redis/redis.conf
     hostname: redis
     volumes:
       - redis_data:/data
+      - ${path}/config/pathfinder/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       pf:
         aliases:
@@ -52,6 +53,7 @@ services:
       - "traefik.http.routers.pf.tls=true"
       - "traefik.http.routers.pf.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.pf.entrypoints=websecure"
+      - "traefik.docker.network=web" # put your traefik network web/proxy/whatever you use here
     networks:
       - pf
       - web
@@ -62,8 +64,9 @@ services:
       disable: true
     volumes:
       - ${path}/config/pathfinder/config.ini:/var/www/html/pathfinder/app/templateConfig.ini
-      - ${path}/config/pathfinder/pathfinder.ini:/var/www/html/pathfinder/app/pathfinder.ini
-      - ${path}/config/pathfinder/plugins.ini:/var/www/html/pathfinder/app/plugins.ini
+      - ${path}/config/pathfinder/routes.ini:/var/www/html/pathfinder/app/routes.ini
+      - ${path}/config/pathfinder/pathfinder.ini:/var/www/html/pathfinder/conf/pathfinder.ini
+      - ${path}/config/pathfinder/plugin.ini:/var/www/html/pathfinder/conf/plugin.ini
     depends_on:
       - pfdb   
       - pf-redis
