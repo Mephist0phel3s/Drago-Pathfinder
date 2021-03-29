@@ -1,3 +1,8 @@
+2021-29-03
+- Changed pathfinder upstream to a fork
+- Refactored the docker-compose.yml
+- Refactored the Dockerfile a lot
+
 2021-01-03
 - changed plugin(s) typo in docker-compose
 - added plugin.ini to static files so docker-composer reference works

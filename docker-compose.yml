@@ -2,71 +2,68 @@ version: "3.8"
 
 services:
   pfdb:
-    image: bianjp/mariadb-alpine:latest
+    image: yobasystems/alpine-mariadb
     environment:
       MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
-    container_name: "$CONTAINER_NAME-db"
+      MYSQL_DATABASE: pf
+      #- MYSQL_ROOT_PASSWORD=sheep
     networks:
-      pf:
-        aliases:
-          - "${CONTAINER_NAME}db"
+      test-pf:
     volumes:
      - db_data:/var/lib/mysql
-     - $path/pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
+     - ./pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
     restart: always
+    logging:
+      driver: none
   pf-redis:
     image: redis:latest
-    container_name: "$CONTAINER_NAME-redis"
     command: redis-server /usr/local/etc/redis/redis.conf
     hostname: redis
     volumes:
       - redis_data:/data
-      - ${path}/config/pathfinder/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./config/pathfinder/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
-      pf:
-        aliases:
-          - "$CONTAINER_NAME-redis"
+      test-pf:
     logging:
       driver: none
     restart: always
   pf-socket:
     image: composer:latest
-    container_name: "$CONTAINER_NAME-socket"
     command: ["sh","-c","composer install && php cmd.php --tcpHost 0.0.0.0"]
     hostname: socket
+    logging:
+      driver: none
     volumes:
-      - ${path}/websocket:/app
+      - ./websocket:/app
     networks:
-      pf:
-         aliases:
-           - "$CONTAINER_NAME-socket"
+      test-pf:
     restart: always
   pf:
-    container_name: ${CONTAINER_NAME}
     hostname: "pathfinder"
     build: '.'
     env_file:
     - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.pf.loadbalancer.server.port=80"
-      - "traefik.http.routers.pf.tls=true"
-      - "traefik.http.routers.pf.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.pf.entrypoints=websecure"
+      - "traefik.http.services.testpf.loadbalancer.server.port=80"
+      - "traefik.http.routers.testpf.tls=true"
+      - "traefik.http.routers.testpf.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.testpf.entrypoints=websecure"
       - "traefik.docker.network=web" # put your traefik network web/proxy/whatever you use here
     networks:
-      - pf
+      - test-pf
       - web
         #ports:
         #- 5000:80
         #- 8030:8030
     healthcheck:
       disable: true
+    tty: true
     volumes:
-      - ${path}/config/pathfinder/config.ini:/var/www/html/pathfinder/app/templateConfig.ini
-      - ${path}/config/pathfinder/routes.ini:/var/www/html/pathfinder/app/routes.ini
-      - ${path}/config/pathfinder/pathfinder.ini:/var/www/html/pathfinder/conf/pathfinder.ini
-      - ${path}/config/pathfinder/plugin.ini:/var/www/html/pathfinder/conf/plugin.ini
+      - ./config/pathfinder/config.ini:/var/www/html/pathfinder/app/templateConfig.ini
+      - ./config/pathfinder/routes.ini:/var/www/html/pathfinder/app/routes.ini
+      - ./config/pathfinder/pathfinder.ini:/var/www/html/pathfinder/conf/pathfinder.ini
+      - ./config/pathfinder/plugin.ini:/var/www/html/pathfinder/app/plugin.ini
     depends_on:
       - pfdb   
       - pf-redis
@@ -78,7 +75,7 @@ volumes:
      db_data:
      redis_data:
 networks:
-    pf:
+    test-pf:
     web:
        external: true
 
