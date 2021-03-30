@@ -1,6 +1,7 @@
 [submodule "pathfinder"]
 	path = pathfinder
-	url = https://github.com/samoneilll/pathfinder
+	url = https://github.com/exodus4d/pathfinder
+	branch = develop
 [submodule "websocket"]
 	path = websocket
 	url = https://github.com/exodus4d/pathfinder_websocket

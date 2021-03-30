@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   pfdb:
-    image: yobasystems/alpine-mariadb
+    image: bianjp/mariadb-alpine:latest
     environment:
       MYSQL_ROOT_PASSWORD: $MYSQL_PASSWORD
       MYSQL_DATABASE: pf
@@ -11,10 +11,9 @@ services:
       test-pf:
     volumes:
      - db_data:/var/lib/mysql
-     - ./pathfinder/export/sql/eve_universe.sql.zip:/eve_universe.sql.zip
     restart: always
-    logging:
-      driver: none
+    #  logging:
+    #  driver: none
   pf-redis:
     image: redis:latest
     command: redis-server /usr/local/etc/redis/redis.conf
@@ -53,9 +52,6 @@ services:
     networks:
       - test-pf
       - web
-        #ports:
-        #- 5000:80
-        #- 8030:8030
     healthcheck:
       disable: true
     tty: true
