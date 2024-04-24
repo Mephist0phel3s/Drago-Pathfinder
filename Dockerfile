@@ -13,7 +13,7 @@ RUN composer install
 #build web files
 FROM node:current-alpine as buildweb
 RUN apk update \
-    && apk add --no-cache libpng-dev python g++ make automake graphicsmagick libtool jpeg-dev nasm 
+    && apk add --no-cache libpng-dev python3 g++ make automake graphicsmagick libtool jpeg-dev nasm 
 COPY  --chown=nobody --from=build /pathfinder  pathfinder
 WORKDIR /pathfinder
 ARG TAG="--tag=v2.0.1"
